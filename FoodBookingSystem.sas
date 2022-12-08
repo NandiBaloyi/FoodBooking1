@@ -1,115 +1,93 @@
-/* Generated Code (IMPORT) */
-/* Source File: food_booking.csv */
-/* Source Path: /home/u62791621/Myfiles */
-/* Code generated on: 05/12/2022 13:41 */
+/*  This is the top ten priced items in rest*/
+ *
+ */
 
-%web_drop_table(WORK.IMPORT);
+ods graphics / reset width=6.4in height=4.8in imagemap;
 
-
-FILENAME REFFILE '/home/u62791621/Myfiles/food_booking.csv';
-
-PROC IMPORT DATAFILE=REFFILE
-	DBMS=CSV
-	OUT=WORK.IMPORT;
-	GETNAMES=YES;
-RUN;
-
-PROC CONTENTS DATA=WORK.IMPORT; RUN;
-
-
-%web_open_table(WORK.IMPORT);
-
-Data FoodBooking; *Renaming data to/;
-	set import; * old dataset name/;
+proc sgplot data=WORK.IMPORT (obs=10);
+	vbar Item_Name / response=Product_Price datalabel;
+	yaxis grid;
+	title " Graph showing the count of cities";
 run;
 
-* Assigning  Libref ;
-libname Myfiles "/home/u62791621/Myfiles";
+ods graphics / reset;
 
-*Save it as a sas document in my folder/;
-Data Myfiles.FoodBooking; *moving data to/;
-	set FoodBooking; * old dataset name/;
+
+/*  This is the top ten priced items in rest*/
+
+proc template;
+	define statgraph SASStudio.Pie;
+		begingraph;
+		entrytitle "Graph Showing Top  Priced items" / textattrs=(size=14);
+		layout region;
+		piechart category=Item_Name /;
+		endlayout;
+		endgraph;
+	end;
 run;
 
-*Time Formatting /;
-data  NewFoodBooking;
- set Myfiles.FoodBooking;
- format Order_Time hhmm.;
-Run;
+ods graphics / reset width=6.4in height=4.8in imagemap;
 
-*Renaming My dataset after Formating and saving it to my folder;
-Data Myfiles.NewFoodBooking; *moving data to/;
-	set NewFoodBooking; * old dataset name/;
+proc sgrender template=SASStudio.Pie data=WORK.IMPORT;
 run;
 
-*Number of Unique Variables;
-proc sql;
-select count(distinct Item_Name) as NumOfItems
-from myfiles.newfoodbooking;
+ods graphics / reset;
+
+*Graph showing sales;
+proc template;
+	define statgraph SASStudio.Pie;
+		begingraph;
+		entrytitle "Graph Showing Sales" / textattrs=(size=14);
+		layout region;
+		piechart category=Years / stat=pct;
+		endlayout;
+		endgraph;
+	end;
 run;
 
-proc sql;
-select count(distinct Order_Number) as NumOfOrderNo
-from myfiles.newfoodbooking;
+ods graphics / reset width=6.4in height=4.8in imagemap;
+
+proc sgrender template=SASStudio.Pie data=WORK.IMPORT;
 run;
 
-*Checking for unique items;
-proc freq data = myfiles.newfoodbooking;
-table Item_Name;
+ods graphics / reset;
+
+
+*Graph shows time orders are made/;
+
+ods graphics / reset width=6.4in height=4.8in imagemap;
+proc sgplot data=WORK.IMPORT;
+	title height=14pt "This Graph shows time orders are always made.";
+	vline Hours / lineattrs=(thickness=4 color=CX990099);
+	yaxis grid;
 run;
 
-*Search for Order Number 16106 Items ;
-proc print data = NewFoodBooking;
-where Order_Number = 16106;
+ods graphics / reset;
+title;
+
+* Sales per Year/;
+ods graphics / reset width=6.4in height=4.8in imagemap;
+
+proc sgplot data=WORK.IMPORT;
+	title height=14pt "Histogram graph showing Scales per Year";
+	histogram Years / scale=count fillattrs=(color=CX2cebb5) dataskin=sheen;
+	yaxis grid;
 run;
 
-*Printing Bottle Coke Item;
-Proc print data = NewFoodBooking;
-where Item_Name = 'Bottle Coke';
+ods graphics / reset;
+title;
+
+*Quantity per year;
+
+ods graphics / reset width=6.4in height=4.8in imagemap;
+
+proc sgplot data=WORK.IMPORT (where=(Quantity > 10));
+	title height=14pt "Graph shows  Count of Quantinty  greater than 10 Each year";
+	hbar Years / group=Quantity groupdisplay=cluster;
+	xaxis grid;
 run;
 
-*Deleting Bottle Coke Item/s;
-data DeleteItem;
- set Myfiles.newfoodbooking;
- if  Item_Name= 'Bottle Coke' THEN DELETE;
- run;
- 
- *Updating;
-data UpdatingM;
-   set  Myfiles.newfoodbooking;
-   if Item_Name = 'Plain Rice' then Item_Name = 'Rice';
-run;
- 
-data test;
-set Myfiles.newfoodbooking;
+ods graphics / reset;
+title;
 
-*Cheching items that starting with chicken /;
-data checking;
-set myfiles.newfoodbooking;
-Orders15=prxmatch("/^v/",Year);
-run;
-
-*Orders made in 2015; 
-data Year2015;
- set myfiles.newfoodbooking;
- where Years = 2015;
- run;
-
-*Items bought in bulks/;
-data ItemsBought;
-set myfiles.newfoodbooking;
-where quantity > 10;
-run;
-
-*Which Items where bought in 50/;
-data ItemsBought50;
-set myfiles.newfoodbooking;
-where quantity = 51;
-run;
-
-*Quantity 32 ;
-data ItemsBought50;
-set myfiles.newfoodbooking;
-where quantity = 32;
-run;
 
